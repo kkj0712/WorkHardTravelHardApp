@@ -8,11 +8,11 @@ import {
   TextInput,
   ScrollView,
   Alert,
-  Pressable,
+  Platform,
 } from 'react-native';
 import { theme } from './colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Fontisto } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 const STORAGE_KEY = "@toDos";
 const WORKING_KEY = "@working";
@@ -64,8 +64,9 @@ export default function App() {
   const loadToDos = async () => {
     try {
       const s = await AsyncStorage.getItem(STORAGE_KEY);
-      setToDos(JSON.parse(s)); //String -> Object
-      console.log(toDos);
+      if(s){
+        setToDos(JSON.parse(s)); //String -> Object
+      }
     } catch (error) {
       console.log(`loadToDos error: ${error}`);
     }
@@ -104,18 +105,28 @@ export default function App() {
   };
 
   const deleteToDo = (key) => {
-    Alert.alert("Delete To Do?", "Are you sure?", [
-      { text: "Cancel" },
-      { 
-        text: "I'm Sure", 
-        onPress: () => { 
-          const newToDos = { ...toDos };
-          delete newToDos[key];
-          setToDos(newToDos);
-          saveTodos(newToDos);
-        }, 
-      },
-    ]);
+    if(Platform.OS === "web"){
+      const ok = confirm("Do you want to delete this To Do?");
+      if (ok) {
+        const newToDos = { ...toDos };
+        delete newToDos[key];
+        setToDos(newToDos);
+        saveTodos(newToDos);
+      }
+    }else {
+      Alert.alert("Delete To Do?", "Are you sure?", [
+        { text: "Cancel" },
+        { 
+          text: "I'm Sure", 
+          onPress: () => { 
+            const newToDos = { ...toDos };
+            delete newToDos[key];
+            setToDos(newToDos);
+            saveTodos(newToDos);
+          }, 
+        },
+      ]);
+    }
   };
 
   return (
@@ -125,7 +136,8 @@ export default function App() {
         <TouchableOpacity onPress={work}>
           <Text 
             style={{
-              ...styles.btnText, 
+              fontSize: 38,
+              fontWeight: "600",
               color: working ? "white": theme.grey,
             }}
           >Work
@@ -134,7 +146,8 @@ export default function App() {
         <TouchableOpacity onPress={travel}>
           <Text 
             style={{
-              ...styles.btnText, 
+              fontSize: 38,
+              fontWeight: "600",
               color: !working ? "white": theme.grey,
               }}
             >Travel
@@ -155,8 +168,8 @@ export default function App() {
             <View style={styles.checkBox} >
               <TouchableOpacity onPress={() => checkToDo(key)}>
                 { toDos[key].check === true ?
-                <Fontisto name="checkbox-active" size={20} color={theme.toDoBg} /> : 
-                <Fontisto name="checkbox-passive" size={20} color={theme.toDoBg} />
+                <Feather name="check-circle" size={24} color="white" /> : 
+                <Feather name="circle" size={24} color="white" />
                 }
               </TouchableOpacity>
               <TextInput 
@@ -166,12 +179,11 @@ export default function App() {
                 }}
                 onChangeText={(payload) => editText(key, payload)}
                 onSubmitEditing={updateToDo}
-              >
-                {toDos[key].text}
-              </TextInput>
+                value={toDos[key].text}
+              />
             </View>
             <TouchableOpacity hitSlop={20} onPress={() => deleteToDo(key)}>
-              <Fontisto name="trash" size={16} color={theme.toDoBg} />
+              <Feather name="trash" size={24} color={theme.toDoBg} />
             </TouchableOpacity>
           </View> : null
         )}
