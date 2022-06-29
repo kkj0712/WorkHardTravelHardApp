@@ -77,8 +77,8 @@ export default function App() {
       return;
     } 
     const newToDos = {
-      ...toDos, 
       [Date.now()]: { text, working, check },
+      ...toDos, 
     };
     setToDos(newToDos);
     await saveTodos(newToDos);
@@ -154,6 +154,7 @@ export default function App() {
             </Text>
         </TouchableOpacity>
       </View>
+
       <TextInput
         onSubmitEditing={addTodo}
         onChangeText={onChangeText}
@@ -161,6 +162,7 @@ export default function App() {
         placeholder={working ? "Add a To Do" : "Where do you wanna go?"} 
         style={styles.input} 
       />
+
       <ScrollView>
         {Object.keys(toDos).map((key) => 
           toDos[key].working === working ? 
@@ -183,11 +185,12 @@ export default function App() {
               />
             </View>
             <TouchableOpacity hitSlop={20} onPress={() => deleteToDo(key)}>
-              <Feather name="trash" size={24} color={theme.toDoBg} />
+              <Feather name="delete" size={24} color={theme.toDoBg} />
             </TouchableOpacity>
           </View> : null
         )}
       </ScrollView>
+
     </View>
   );
 }
